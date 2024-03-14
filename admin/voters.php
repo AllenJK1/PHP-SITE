@@ -1,137 +1,51 @@
-<?php include 'includes/session.php'; ?>
-<?php include 'includes/header.php'; ?>
-<body class="hold-transition skin-blue sidebar-mini">
-<div class="wrapper">
+<?php
+  	session_start();
+  	if(isset($_SESSION['admin'])){
+    	header('location: admin/home.php');
+  	}
 
-  <?php include 'includes/navbar.php'; ?>
-  <?php include 'includes/menubar.php'; ?>
-
-  <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-      <h1>
-        Voters List
-      </h1>
-      <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li class="active">Voters</li>
-      </ol>
-    </section>
-    <!-- Main content -->
-    <section class="content">
-      <?php
-        if(isset($_SESSION['error'])){
-          echo "
-            <div class='alert alert-danger alert-dismissible'>
-              <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
-              <h4><i class='icon fa fa-warning'></i> Error!</h4>
-              ".$_SESSION['error']."
-            </div>
-          ";
-          unset($_SESSION['error']);
-        }
-        if(isset($_SESSION['success'])){
-          echo "
-            <div class='alert alert-success alert-dismissible'>
-              <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
-              <h4><i class='icon fa fa-check'></i> Success!</h4>
-              ".$_SESSION['success']."
-            </div>
-          ";
-          unset($_SESSION['success']);
-        }
-      ?>
-      <div class="row">
-        <div class="col-xs-12">
-          <div class="box">
-            <div class="box-header with-border">
-              <a href="#addnew" data-toggle="modal" class="btn btn-primary btn-sm btn-flat"><i class="fa fa-plus"></i> New</a>
-            </div>
-            <div class="box-body">
-              <table id="example1" class="table table-bordered">
-                <thead>
-                  <th>Lastname</th>
-                  <th>Firstname</th>
-                  <th>Photo</th>
-                  <th>Voters ID</th>
-                  <th>Tools</th>
-                </thead>
-                <tbody>
-                  <?php
-                    $sql = "SELECT * FROM voters";
-                    $query = $conn->query($sql);
-                    while($row = $query->fetch_assoc()){
-                      $image = (!empty($row['photo'])) ? '../images/'.$row['photo'] : '../images/profile.jpg';
-                      echo "
-                        <tr>
-                          <td>".$row['lastname']."</td>
-                          <td>".$row['firstname']."</td>
-                          <td>
-                            <img src='".$image."' width='30px' height='30px'>
-                            <a href='#edit_photo' data-toggle='modal' class='pull-right photo' data-id='".$row['id']."'><span class='fa fa-edit'></span></a>
-                          </td>
-                          <td>".$row['voters_id']."</td>
-                          <td>
-                            <button class='btn btn-success btn-sm edit btn-flat' data-id='".$row['id']."'><i class='fa fa-edit'></i> Edit</button>
-                            <button class='btn btn-danger btn-sm delete btn-flat' data-id='".$row['id']."'><i class='fa fa-trash'></i> Delete</button>
-                          </td>
-                        </tr>
-                      ";
-                    }
-                  ?>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>   
-  </div>
-    
-  <?php include 'includes/footer.php'; ?>
-  <?php include 'includes/voters_modal.php'; ?>
-</div>
-<?php include 'includes/scripts.php'; ?>
-<script>
-$(function(){
-  $(document).on('click', '.edit', function(e){
-    e.preventDefault();
-    $('#edit').modal('show');
-    var id = $(this).data('id');
-    getRow(id);
-  });
-
-  $(document).on('click', '.delete', function(e){
-    e.preventDefault();
-    $('#delete').modal('show');
-    var id = $(this).data('id');
-    getRow(id);
-  });
-
-  $(document).on('click', '.photo', function(e){
-    e.preventDefault();
-    var id = $(this).data('id');
-    getRow(id);
-  });
-
-});
-
-function getRow(id){
-  $.ajax({
-    type: 'POST',
-    url: 'voters_row.php',
-    data: {id:id},
-    dataType: 'json',
-    success: function(response){
-      $('.id').val(response.id);
-      $('#edit_firstname').val(response.firstname);
-      $('#edit_lastname').val(response.lastname);
-      $('#edit_password').val(response.password);
-      $('.fullname').html(response.firstname+' '+response.lastname);
+    if(isset($_SESSION['voter'])){
+      header('location: home.php');
     }
-  });
-}
-</script>
+?>
+<?php include 'includes/header.php'; ?>
+<body class="hold-transition login-page" style="background-color: #E6F2E9;"> <!-- Light green background -->
+<div class="login-box" style="background-color:#8DBF8B; color:white; font-size: 22px; font-family: 'Arial';"> <!-- Modified box color to a medium green -->
+    <div class="login-logo" style="background-color:#8DBF8B; color:white; font-size: 28px; font-family: 'Arial';">
+        <b>Your Vote Your Future</b> <!-- Added text -->
+    </div>
+
+    <div class="login-box-body" style="background-color:#A0CCA0; color:white; font-size: 22px; font-family: 'Arial';"> <!-- Slightly lighter green for the box body -->
+        <p class="login-box-msg" style="color:white; font-size: 18px; font-family: 'Arial';">Sign in to start your voting session</p>
+
+        <form action="login.php" method="POST">
+            <div class="form-group has-feedback">
+                <input type="text" class="form-control" name="voter" placeholder="National ID number" required>
+                <span class="glyphicon glyphicon-user form-control-feedback"></span>
+            </div>
+            <div class="form-group has-feedback">
+                <input type="password" class="form-control" name="password" placeholder="Password" required>
+                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+            </div>
+            <div class="row">
+                <div class="col-xs-8 col-xs-offset-2"> <!-- Centered the button -->
+                    <button type="submit" class="btn btn-primary btn-block btn-curve" style="background-color: #66CDAA; color:white; font-size: 16px; font-family: 'Arial';" name="login"><i class="fa fa-sign-in"></i> Sign In</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <?php
+        if(isset($_SESSION['error'])){
+            echo "
+                <div class='callout callout-danger text-center mt20'>
+                    <p>".$_SESSION['error']."</p> 
+                </div>
+            ";
+            unset($_SESSION['error']);
+        }
+    ?>
+</div>
+
+<?php include 'includes/scripts.php' ?>
 </body>
 </html>
