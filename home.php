@@ -5,8 +5,8 @@
 
 	<?php include 'includes/navbar.php'; ?>
 	 
-	  <div class="content-wrapper">
-	    <div class="container">
+	  <div class="content-wrapper" style="background-color: #F1E9D2 ">
+	    <div class="container" style="background-color: #F1E9D2 ">
 
 	      <!-- Main content -->
 	      <section class="content">
@@ -55,17 +55,17 @@
 			        </div>
 
 				    <?php
-				    	$sql = "SELECT * FROM votes WHERE voters_id = '".$voter['id']."'";
-				    	$vquery = $conn->query($sql);
-				    	if($vquery->num_rows > 0){
-				    		?>
-				    		<div class="text-center">
-					    		<h3>You have already voted for this election.</h3>
-					    		<a href="#view" data-toggle="modal" class="btn btn-flat btn-primary btn-lg">View Ballot</a>
-					    	</div>
-				    		<?php
-				    	}
-				    	else{
+				    	$sql = "SELECT voted FROM voters WHERE id = '".$voter['id']."'";
+					$vquery = $conn->query($sql);
+					$row = $vquery->fetch_assoc();
+					if($row['voted'] == 1){
+					    // Voter has already voted
+					    echo "<div class='text-center' style='color:black ; font-size: 40px; font-family:Times'>
+						<h3>You have already voted for this election.</h3>
+						
+					    </div>";
+					}
+					else{
 				    		?>
 			    			<!-- Voting Ballot -->
 						    <form method="POST" id="ballotForm" action="submit_ballot.php">
@@ -97,11 +97,11 @@
 													}
 												}
 											}
-											$input = ($row['max_vote'] > 1) ? '<input type="checkbox" class="flat-red '.$slug.'" name="'.$slug."[]".'" value="'.$crow['id'].'" '.$checked.'>' : '<input type="radio" class="flat-red '.$slug.'" name="'.slugify($row['description']).'" value="'.$crow['id'].'" '.$checked.'>';
+											$input = ($row['max_vote'] > 1) ? '<input type="checkbox" class="icheckbox_large-square '.$slug.'" name="'.$slug.'[]" value="'.$crow['id'].'" '.$checked.'>' : '<input type="radio" class="iradio_flat-green '.$slug.'" name="'.slugify($row['description']).'" value="'.$crow['id'].'" '.$checked.'>';
 											$image = (!empty($crow['photo'])) ? 'images/'.$crow['photo'] : 'images/profile.jpg';
 											$candidate .= '
 												<li>
-													'.$input.'<button type="button" class="btn btn-primary btn-sm btn-flat clist platform" data-platform="'.$crow['platform'].'" data-fullname="'.$crow['firstname'].' '.$crow['lastname'].'"><i class="fa fa-search"></i> Platform</button><img src="'.$image.'" height="100px" width="100px" class="clist"><span class="cname clist">'.$crow['firstname'].' '.$crow['lastname'].'</span>
+													'.$input.'<img src="'.$image.'" height="100px" width="100px" class="clist"><span class="cname clist">'.$crow['firstname'].' '.$crow['lastname'].'</span>
 												</li>
 											';
 										}
@@ -111,14 +111,14 @@
 										echo '
 											<div class="row">
 												<div class="col-xs-12">
-													<div class="box box-solid" id="'.$row['id'].'">
-														<div class="box-header with-border">
+													<div class="box box-solid" style="background-color: #d8d1bd" id="'.$row['id'].'">
+														<div class="box-header with-border" style="background-color: #d8d1bd">
 															<h3 class="box-title"><b>'.$row['description'].'</b></h3>
 														</div>
-														<div class="box-body">
+														<div class="box-body" >
 															<p>'.$instruct.'
 																<span class="pull-right">
-																	<button type="button" class="btn btn-success btn-sm btn-flat reset" data-desc="'.slugify($row['description']).'"><i class="fa fa-refresh"></i> Reset</button>
+																
 																</span>
 															</p>
 															<div id="candidate_list">
@@ -138,8 +138,8 @@
 
 				        		?>
 				        		<div class="text-center">
-					        		<button type="button" class="btn btn-success btn-flat" id="preview"><i class="fa fa-file-text"></i> Preview</button> 
-					        		<button type="submit" class="btn btn-primary btn-flat" name="vote"><i class="fa fa-check-square-o"></i> Submit</button>
+					        		
+					        		<button type="submit" class="btn btn-primary btn-curve" style='background-color: #66CC66 ;color:black ; font-size: 12px; font-family:Times'name="vote"><i class="fa fa-check-square-o"></i> Submit</button>
 					        	</div>
 				        	</form>
 				        	<!-- End Voting Ballot -->
@@ -158,13 +158,33 @@
   	<?php include 'includes/footer.php'; ?>
   	<?php include 'includes/ballot_modal.php'; ?>
 </div>
+echo '<style type="text/css">
+.icheckbox_large-square {
+    width: 30px; /* Large size */
+    height: 30px; /* Square shape */
+    background-color: #66CC66; /* Friendly green background */
+    border-radius: 0; /* Optional: Makes it perfectly square */
+}
+
+.icheckbox_large-square.checked::after {
+    content: "\2714"; /* Unicode check mark */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px; /* Adjust size of the tick */
+    color: white; /* Tick color */
+}
+</style>';
+?>
 
 <?php include 'includes/scripts.php'; ?>
 <script>
 $(function(){
 	$('.content').iCheck({
-		checkboxClass: 'icheckbox_flat-green',
-		radioClass: 'iradio_flat-green'
+    		checkboxClass: 'icheckbox_large-square', // Use the custom class
+    		radioClass: 'iradio_flat-green',
+    		increaseArea: '50%' // Optional: Increase the clickable area
 	});
 
 	$(document).on('click', '.reset', function(e){
